@@ -1,0 +1,51 @@
+html, body, .content {
+    min-height: 100vh;
+    height: auto;  
+}
+
+body {
+    min-height: 100%;
+    font-size: 20px;
+}  
+
+.content{
+    background-color: black;         
+    width: 100%;
+    background-size: cover;
+}
+
+.main-flex-container{
+    display:flex; 
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    height: auto;
+    flex-wrap: wrap;
+}
+
+ 
+.flex-container{
+    display:flex; 
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.card{
+    background-color: black;
+    color: white;
+    padding: 20px;
+    width: 18rem; 
+    border: solid 1px white;
+}
+
+.card input{
+    width: 100%;
+}
+
+#send_players{
+    margin-top: 10px;
+    margin-bottom: 20px;
+}

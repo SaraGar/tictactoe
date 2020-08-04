@@ -2,11 +2,27 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
+        <title>{% block title %}¡Tres en raya!{% endblock %}</title>
+        {% block stylesheets %}
+             <link rel="stylesheet" href="{{asset('css/bootstrap/bootstrap.css')}}">
+        {% endblock %}
     </head>
     <body>
         {% block body %}{% endblock %}
-        {% block javascripts %}{% endblock %}
+        {% block javascripts %}
+            <script src="{{asset('js/jquery/jquery-3.5.1.js')}}"></script>
+            <script src="{{asset('js/bootstrap/bootstrap.js')}}"></script>
+            <script src="{{asset('js/sweetalert/sweetalert2.all.min.js')}}"></script>
+            <script>
+                {# Función auxiliar para lanzar un mensaje de error desde cualquier plantilla #}
+                function send_generic_error(message = "Lamentamos las molestias"){
+                    Swal.fire(
+                        'Ha ocurrido un error',
+                        message,
+                        'error'
+                    )
+                }
+            </script>
+        {% endblock %}
     </body>
 </html>

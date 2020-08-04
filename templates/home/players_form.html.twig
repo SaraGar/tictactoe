@@ -1,0 +1,23 @@
+
+<div class='main-flex-container'>
+    <div class='flex-container'>
+        <div class="card" >
+            <img class="card-img-top" src="{{ asset('images/x1.png')}}" alt="Símbolo: X">
+            <div class="card-body">
+                <h5 class="card-title">Nombre Jugador 1</h5>
+                <input id='player1' class="card-text" type='text' limit='50' value='Player One'/>
+            </div>
+        </div>
+        <div class="card">
+            <img class="card-img-top" src="{{asset('images/o5.png')}}" alt="Símbolo: O">
+            <div class="card-body">
+                <h5 class="card-title">Nombre Jugador 2</h5>
+                <input id='player2' class="card-text" type='text' limit='50' value='Player Two'/>
+            </div>
+        </div>   
+    </div>
+    <div class='flex-container'>
+        <button id='send_players' class='btn btn-light' type='button'> ¡Jugar! </button>
+    </div>
+</div>
+

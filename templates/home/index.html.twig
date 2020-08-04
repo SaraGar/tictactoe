@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{parent()}}
+     <link rel="stylesheet" href="{{asset('css/home/home_styles.css')}}">
+{% endblock %}
+
+{% block body %}
+
+    <div class='content' >
+        {% include 'home/players_form.html.twig' %}
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+
+    <script>
+        
+        $("#send_players").on('click', ()=>{  
+            //TODO validar campos nombre rellenos           
+            retrieve_or_start_game();
+        });   
+
+        {##
+            Función que busca si hay una partida anterior sin finalizar para los usuarios indicados y pregunta si se desea recuperarla. Si no hay, o no se quiere recuperarla, redirige a una nueva partida.
+        ##}
+        function retrieve_or_start_game(){
+            $.ajax({
+                url: '{{ path('retrieve_game') }}',
+                data: {'playerOne': $('#player1').val(), playerTwo: $("#player2").val()},
+                type: 'POST',
+                success:function (data){
+
+                    if(data['code'] && data['code'] != 200){
+                        send_generic_error(data['message']);
+                    }else{         
+
+                        let last_game = null;   
+
+                        if(data['data'] && data['data'] != null && data['data'] != "" ){                    
+                            Swal.fire({
+                                title: '¿Desea continuar la última partida?',
+                                text: "De lo contrario se iniciará una nueva",
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Sí',
+                                cancelButtonText: 'No'
+                            }).then((result) => {
+                                if (result.value) {
+                                    last_game = data['data'];                              
+                                }
+                            })
+                        }
+                        
+                        load_game(last_game);
+                        
+                    }                  
+                },error: function(error){
+                    send_generic_error();
+                }
+            });
+        }
+
+        function load_game(last_game_id = null){
+
+        }
+    </script>
+{% endblock %}
