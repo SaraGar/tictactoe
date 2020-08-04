@@ -1,0 +1,22 @@
+h3{
+    color: white;
+    text-align: center;
+}
+
+.empty{
+    background-color: black;
+    background-image: none;
+}
+
+table, td{
+    border: solid 1px white;
+}
+
+table{
+    height: 500px;
+    width: 500px !important;
+}
+
+.turn{
+    text-decoration: underline white;
+}

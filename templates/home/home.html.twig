@@ -19,9 +19,18 @@
     <script>
         
         $("#send_players").on('click', ()=>{  
-            if(are_inputs_filled()){
-                $(".error").removeClass('error');
+            if(are_inputs_filled()){                
                 retrieve_or_start_game();
+            }    
+        });  
+
+        {##
+         Función para validar que los inputs para el nombre de los jugadores estén rellenos, de lo contrario los colorea de rojo. 
+        ##}
+        function are_inputs_filled(){
+            if($("#player1").val() != "" && $("#player2").val() != "") {
+                $(".error").removeClass('error');
+                return true;
             }else{
                 $("input").map( (index, element) => {
                     if ($(element).val() == ""){
@@ -31,15 +40,8 @@
                     else
                         $(element).removeClass('error');
                 });
-            }       
-            
-        });  
-
-        function are_inputs_filled(){
-            if($("#player1").val() != "" && $("#player2").val() != "") {
-                return true;
-            }
-            return false;
+                return false;
+            }            
         } 
 
         {##
@@ -48,7 +50,10 @@
         function retrieve_or_start_game(){
             $.ajax({
                 url: '{{ path('retrieve_game') }}',
-                data: {'playerOne': $('#player1').val(), playerTwo: $("#player2").val()},
+                data: {
+                    'playerOne': $('#player1').val().trim().replace(' ', '_'), 
+                    'playerTwo': $("#player2").val().trim().replace(' ', '_')
+                    },
                 type: 'POST',
                 success:function (data){
 
@@ -70,13 +75,14 @@
                                 cancelButtonText: 'No'
                             }).then((result) => {
                                 if (result.value) {
-                                    last_game = data['data'];                              
+                                    load_game(data['data']);  
+                                }else{
+                                    load_game();
                                 }
                             })
-                        }
-                        
-                        load_game(last_game);
-                        
+                        }else{
+                            load_game();
+                        }                                            
                     }                  
                 },error: function(error){
                     send_generic_error();
@@ -84,7 +90,25 @@
             });
         }
 
-        function load_game(last_game_id = null){
+        {##
+            Función para comenzar el juego, cargando la vista del tablero que corresponda (partida recuperada o nueva)
+        ##}
+        function load_game(last_game_id = ""){
+         
+            $.ajax({
+                url: '{{ path('play_game') }}',
+                data: {'playerOne': $('#player1').val().trim().replace(' ', '_'), 
+                       'playerTwo': $("#player2").val().trim().replace(' ', '_'), 
+                       'gameId': last_game_id
+                       },
+                type: 'POST',
+                success:function (data){
+                    $(".content").html(data);
+                },
+                error: function(error){
+                    send_generic_error();
+                }
+            });
 
         }
     </script>

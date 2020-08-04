@@ -1,0 +1,10 @@
+
+<table class='table'>
+    {% for i in range(1, 3) %}
+        <tr>
+            {% for j in range(1, 3) %}
+                <td data-pos={{i}}{{j}} onclick='processTurn()'></td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table> 

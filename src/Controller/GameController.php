@@ -10,15 +10,6 @@ use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 
 class GameController extends AbstractController
 {
-    /**
-     * @Route("/game", name="game")
-     */
-    public function index()
-    {
-        return $this->render('game/index.html.twig', [
-            'controller_name' => 'GameController',
-        ]);
-    }
 
     /**
      * @Route("/retrieve_game", name="retrieve_game")
@@ -37,4 +28,27 @@ class GameController extends AbstractController
         
         return new JsonResponse($response);
     }
+
+    /**
+     * @Route("/game", name="play_game")
+     * 
+     * Función para cargar el tablero de juego
+     *
+     */
+    public function playGame(HttpFoundationRequest $request, GameService $gameService)
+    {   $response = ['code' => 500, 'message' => 'Ha ocurrido un error', 'data' => []];
+
+        $playerOne = $request->get('playerOne');
+        $playerTwo= $request->get('playerTwo');
+        $gameId = $request->get('gameId');
+        
+        $game = $gameService->getGame($playerOne, $playerTwo, $gameId);
+        
+        return $this->render('game/game.html.twig', [
+            'playerOne' => $playerOne,
+            'playerTwo' => $playerTwo,
+            'game' => $game
+        ]);
+    }
+
 }

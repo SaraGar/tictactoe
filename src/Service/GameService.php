@@ -30,11 +30,34 @@ class GameService
         $game_id = $this->em->getRepository(Game::class)->findPendingGame($playerOne, $playerTwo);
         
         if(!empty($game_id)){
-            $response = ['code' => 200, 'message' => 'Partida recuperada', 'data' => [$game_id]];
+            $response = ['code' => 200, 'message' => 'Partida recuperada', 'data' => $game_id];
         }else{
             $response = ['code' => 200, 'message' => 'No hay partidas pendientes', 'data' => []];  
         }
 
         return $response;
     }
+
+    /**
+     * Función para obtener una partida a través de su ID y validar que pertenezca a los usuarios actuales. Si no se encuentra o la ID llega vacía, se crea una nueva.
+     *
+     * @param [type] $playerOne
+     * @param [type] $playerTwo
+     * @param [type] $gameId
+     * @return Game  $game
+     */
+    public function getGame($playerOne, $playerTwo, $gameId = null){
+        $game = null;
+
+        if($gameId){
+            $game = $this->em->getRepository(Game::class)->findOneById($gameId);
+            //Si se encuentra la partida, comprobamos que sea de esos jugadores
+            if($game){
+                $areAllowed = $this->em->getRepository(Game::class)->arePlayersAllowed($playerOne, $playerTwo, $gameId);
+            }
+        }
+        
+        return $game;  
+    }
+
 }

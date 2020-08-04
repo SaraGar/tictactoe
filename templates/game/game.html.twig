@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{parent()}}
+     <link rel="stylesheet" href="{{asset('css/game/game_styles.css')}}">
+     <style>               
+          .x{
+               background-image: url("{{asset('/images/x1.png')}}");
+               background-size: cover;
+          }
+          .o{
+               background-image: url("{{asset('/images/o5.png')}}");
+               background-size: cover;
+          }
+     </style>
+{% endblock %}
+
+{% block body %}
+
+     {% include 'game/players_header.html.twig' %}
+     {% include 'game/board.html.twig' %}
+
+{% endblock %}
+
+{% block javascripts %}
+     <script>
+          {# Si se ha cargado una partida anterior, recuperamos el estado de la partida #}
+          {% if game and game != null %}
+               {% for turn in game.turns %}
+                    $("td[data-pos='{{turn.rowPosition}}{{turn.columnPosition}}']").addClass({%if turn.player.name == playerOne %} 'x' {% else %} 'o' {% endif %});
+                    underlineTurn();
+               {% endfor %}
+          {% endif %} 
+
+          function processTurn(){
+               
+               underlineTurn();
+                   
+          }
+
+          function underlineTurn(){
+               {# Calculamos de quién es el turno. Si el número de movimientos es par le toca al jugador 1 y viceversa #}
+               {% if game and game != null and game.turns|length % 2 == 0 %}
+                    $("#span_player_one").addClass('turn');
+                    $("#span_player_two").removeClass('turn');
+               {% else %}
+                    $("#span_player_one").removeClass('turn');
+                    $("#span_player_two").addClass('turn');
+               {% endif %}
+          }  
+
+     </script>
+{% endblock %}

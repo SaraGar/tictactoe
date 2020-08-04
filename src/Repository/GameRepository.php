@@ -53,32 +53,38 @@ class GameRepository extends ServiceEntityRepository
         return $result;
     }
 
-    // /**
-    //  * @return Game[] Returns an array of Game objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('g.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+    /**
+     * Función para valorar si una partida pertenece a los jugadores indicados
+     *
+     * @param [type] $playerOne
+     * @param [type] $playerTwo
+     * @param [type] $gameId
+     * @return boolean
+     */
+    public function arePlayersAllowed($playerOne, $playerTwo, $gameId){
+        $conn = $this->getEntityManager()->getConnection();
+        $result = "";
 
-    /*
-    public function findOneBySomeField($value): ?Game
-    {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $sql = "
+            SELECT IF(g.id IS NOT NULL, 1, 0) as are_allowed
+            FROM game g
+            JOIN turn t ON t.game_id = g.id
+            LEFT JOIN player p1 ON t.player_id = p1.id AND p1.name = :playerOne
+            LEFT JOIN player p2 ON t.player_id = p2.id AND p2.name = :playerTwo
+            WHERE (p1.id IS NOT NULL or p2.id IS NOT NULL)
+            AND g.id = :gameId
+            ORDER BY g.datetime DESC 
+            LIMIT 1
+        ";
+       
+        $stmt = $conn->prepare($sql);
+       
+        $stmt->execute(array('playerOne' => $playerOne, 'playerTwo' => $playerTwo, 'gameId' => $gameId));
+        $array_result = $stmt->fetch();
+
+        if(is_array($array_result) && count($array_result) > 0 && $array_result["are_allowed"] != NULL){
+            $result = $array_result['are_allowed']; 
+        }
+        return $result;
     }
-    */
 }
