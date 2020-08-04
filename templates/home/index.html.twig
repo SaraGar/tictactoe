@@ -19,9 +19,28 @@
     <script>
         
         $("#send_players").on('click', ()=>{  
-            //TODO validar campos nombre rellenos           
-            retrieve_or_start_game();
-        });   
+            if(are_inputs_filled()){
+                $(".error").removeClass('error');
+                retrieve_or_start_game();
+            }else{
+                $("input").map( (index, element) => {
+                    if ($(element).val() == ""){
+                        $(element).addClass('error');
+                        $(element).focus();
+                    }                       
+                    else
+                        $(element).removeClass('error');
+                });
+            }       
+            
+        });  
+
+        function are_inputs_filled(){
+            if($("#player1").val() != "" && $("#player2").val() != "") {
+                return true;
+            }
+            return false;
+        } 
 
         {##
             Función que busca si hay una partida anterior sin finalizar para los usuarios indicados y pregunta si se desea recuperarla. Si no hay, o no se quiere recuperarla, redirige a una nueva partida.

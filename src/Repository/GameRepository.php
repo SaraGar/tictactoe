@@ -47,7 +47,7 @@ class GameRepository extends ServiceEntityRepository
         $stmt->execute(array('playerOne' => $playerOne, 'playerTwo' => $playerTwo));
         $array_result = $stmt->fetch();
 
-        if(count($array_result) > 0 && $array_result["id"] != NULL){
+        if(is_array($array_result) && count($array_result) > 0 && $array_result["id"] != NULL){
             $result = $array_result['id']; 
         }
         return $result;
