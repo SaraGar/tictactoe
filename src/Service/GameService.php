@@ -144,12 +144,15 @@ class GameService
                     
                     //Comprobamos las filas
                     $winner = $this->checkRows($board);
+                    
                     if($winner == ""){
                         //Comprobamos las columnas
                         $winner = $this->checkColumns($board);
+                        
                         if($winner == ""){
                             //Comprobamos las diagonales 
                             $winner = $this->checkDiagonals($board);
+                            
                         }                        
                     }
 
@@ -246,29 +249,28 @@ class GameService
         $lastPosition ="";
         for ($count =  1 ; $count <= 3; $count++) {           
                  
-            if($board[$count][$count] == $lastPosition  || ($lastPosition == "" && $count == 1)){
-               
+            if($board[$count][$count] == $lastPosition ){
+
                 if($count == 3 && $lastPosition != ""){
                     $winner = $lastPosition;
                     return $winner;
-                }
-                $lastPosition = $board[$count][$count];   
-                           
-            }       
+                }                           
+            }   
+            $lastPosition = $board[$count][$count];      
         }
 
         $column = 1;
         $lastPosition = ""; 
         for ($row =  3 ; $row >=1; $row--) {
                       
-            if($board[$row][$column] == $lastPosition || ($lastPosition == "" && $row == 3)){
+            if($board[$row][$column] == $lastPosition){
                
                 if($row == 1 && $lastPosition != ""){
                     $winner = $lastPosition;
                     return $winner;
-                }           
-                $lastPosition = $board[$row][$column];               
-            }         
+                }                   
+            }      
+            $lastPosition = $board[$row][$column];   
             $column++;
         }
         
