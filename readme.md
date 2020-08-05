@@ -1,6 +1,5 @@
-##################################################
-		TRES EN RAYA
-##################################################
+### TRES EN RAYA
+
 
 Proyecto realizado en Symfony 4.4 y PHP 7.3.1. 
 Versión web del juego tres en raya. 
