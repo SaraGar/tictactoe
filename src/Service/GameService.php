@@ -122,7 +122,7 @@ class GameService
      * @return array 
      */
     public function checkFinished($gameId){
-        try {
+        try { 
             
             $game = $this->em->getRepository(Game::class)->findOneById($gameId);
                 
@@ -173,7 +173,7 @@ class GameService
 
                 $response = ['code' => 200, 'message' => 'Guardado con éxito', 'data' => ['isFinished' => $isFinished, 'winner' => $winnerName]];
             }   
-         } catch (\Throwable $th) {
+        } catch (\Throwable $th) {
             $response = ['code' => 500, 'message' => 'No se ha podido procesar el turno', 'data' => []];
         }    
         
@@ -189,12 +189,14 @@ class GameService
     public function getBoard($game){
         $board = [];
 
+        //Montamos la matriz vacía
         for ($i = 1; $i <= 3; $i++) {
             for ($j = 1; $j <= 3; $j++) {
                 $board[$i][$j] = null;
             }
         }
 
+        //Completamos la matriz con los valores de los turnos
         foreach($game->getTurns() as $turn){
             $board[$turn->getRowPosition()][$turn->getColumnPosition()] = $turn->getPlayer()->getName();
         }
@@ -202,12 +204,18 @@ class GameService
         return $board;
     }
 
+    /**
+     * Función para comprobar si hay tres en raya en alguna columna
+     *
+     * @param [type] $board
+     * @return string Nombre del ganador o "" en su defecto
+     */
     public function checkColumns($board){
-        
+        //Recorremos las casillas de cada columna
         for ($column = 1; $column <= 3; $column++) {
             $lastPosition = "";
             for($row=1; $row<=3; $row++){
-                
+                //Si la posición coincide con la anterior o si estamos en la primera casilla, continuamos. Si estamos en la última casilla (tercera fila) y las casillas coinciden, consideramos que tenemos ganador.
                 if($board[$row][$column] == $lastPosition || ($lastPosition == "" && $row == 1)){
                     if($row == 3 && $lastPosition != ""){
                         $winner = $lastPosition;
@@ -223,12 +231,18 @@ class GameService
         return "";
     }
 
+    /**
+     * Función para comprobar si hay tres en raya en alguna fila
+     *
+     * @param [type] $board
+     * @return string Nombre del ganador o "" en su defecto
+     */
     public function checkRows($board){
-        
+        //Recorremos cada casilla de la fila
         for ($row = 1; $row <= 3; $row++) {
             $lastPosition = "";
             for($column=1; $column<=3; $column++){  
-              
+                //Si la posición coincide con la anterior o si estamos en la primera casilla, continuamos. Si estamos en la última casilla (tercera columna) y las casillas coinciden, consideramos que tenemos ganador. 
                 if($board[$row][$column] == $lastPosition || ($lastPosition == "" && $column == 1)){                                              
                     if($column == 3 && $lastPosition != ""){
                         $winner = $lastPosition; 
@@ -245,35 +259,51 @@ class GameService
         return "";
     }
 
+    /**
+     *  Función para comprobar si hay tres en raya en alguna diagonal
+     *
+     * @param [type] $board
+     * @return string Nombre del ganador o "" en su defecto
+     */
     public function checkDiagonals($board){
-        $lastPosition ="";
-        for ($count =  1 ; $count <= 3; $count++) {           
-                 
-            if($board[$count][$count] == $lastPosition ){
 
+        //Primera diagonal 
+
+        //En esta diagonal, los valores de la posición en la fila y la columna coinciden, por lo que solo tenemos un bucle
+        $lastPosition ="";
+        for ($count =  1 ; $count <= 3; $count++) {     
+            //Si las casillas coinciden hasta llegar a la tercera vuelta, consideramos que tenemos ganador     
+            if($board[$count][$count] == $lastPosition || $count == 1){
                 if($count == 3 && $lastPosition != ""){
                     $winner = $lastPosition;
                     return $winner;
-                }                           
-            }   
-            $lastPosition = $board[$count][$count];      
+                }        
+                $lastPosition = $board[$count][$count];                   
+            }else{
+                break;
+            }                  
         }
 
+        //Segunda diagonal 
+
+        //En esta diagonal, el valor de la posición de la fila decrece mientras el de la columna crece 
         $column = 1;
         $lastPosition = ""; 
         for ($row =  3 ; $row >=1; $row--) {
-                      
-            if($board[$row][$column] == $lastPosition){
+             //Si las casillas coinciden hasta llegar a la tercera vuelta, consideramos que tenemos ganador  
+            if($board[$row][$column] == $lastPosition || $row == 3){
                
                 if($row == 1 && $lastPosition != ""){
                     $winner = $lastPosition;
                     return $winner;
-                }                   
-            }      
-            $lastPosition = $board[$row][$column];   
-            $column++;
-        }
-        
+                }  
+                $lastPosition = $board[$row][$column];   
+                $column++;     
+
+            } else{
+               break;
+            }   
+        }        
 
         return "";        
     }
