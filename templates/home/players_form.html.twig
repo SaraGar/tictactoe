@@ -1,23 +1,23 @@
-
 <div class='main-flex-container'>
     <div class='flex-container'>
         <div class="card" >
             <img class="card-img-top" src="{{ asset('images/x1.png')}}" alt="Símbolo: X">
             <div class="card-body">
                 <h5 class="card-title">Nombre Jugador 1</h5>
-                <input id='player1' class="card-text player_input" type='text' limit='50' value='Player_One'/>
+                <input id='player1' class="card-text player_input" type='text' limit='50' value='Player_One'/>                
             </div>
         </div>
         <div class="card">
             <img class="card-img-top" src="{{asset('images/o5.png')}}" alt="Símbolo: O">
             <div class="card-body">
                 <h5 class="card-title">Nombre Jugador 2</h5>
-                <input id='player2' class="card-text player_input" type='text' limit='50' value='Player_Two'/>
+                <input id='player2' class="card-text player_input" type='text' limit='50' value='Player_Two'/>              
             </div>
         </div>   
     </div>
     <div class='flex-container'>
-        <button id='send_players' class='btn btn-light' type='button'> ¡Jugar! </button>
+        <button id='send_players' class='btn btn-light ' type='button' onclick='initGame(0)'> <img src="{{asset('images/vs_32.png')}}">  ¡Jugar! </button> 
+        <button id='send_robot' class='btn btn-xs btn-light ' onclick='initGame(1)'><img src="{{asset('images/robot_32.png')}}"> ¡Jugar conmigo!</button> 
     </div>
 </div>
 

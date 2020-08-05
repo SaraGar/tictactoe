@@ -87,4 +87,36 @@ class GameRepository extends ServiceEntityRepository
         }
         return $result;
     }
+
+    /**
+     * Función para obtener el otro jugador de una partida
+     *
+     * @param [type] $gameId
+     * @param [type] $player
+     * @return boolean
+     */
+    public function findOtherPlayerName($gameId, $player){
+        $conn = $this->getEntityManager()->getConnection();
+        $result = "";
+
+        $sql = "
+            SELECT p.name as other_player
+            FROM game g
+            JOIN turn t ON t.game_id = g.id
+            JOIN player p ON t.player_id = p.id AND p.name = :playerOne
+            AND g.id = :gameId
+            ORDER BY g.datetime DESC 
+            LIMIT 1
+        ";
+       
+        $stmt = $conn->prepare($sql);
+       
+        $stmt->execute(array('playerOne' => $player, 'gameId' => $gameId));
+        $array_result = $stmt->fetch();
+
+        if(is_array($array_result) && count($array_result) > 0 && $array_result["other_player"] != NULL){
+            $result = $array_result['other_player']; 
+        }
+        return $result;
+    }
 }

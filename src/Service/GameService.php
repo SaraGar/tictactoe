@@ -69,7 +69,7 @@ class GameService
      * @return array 
      */
     public function saveTurn($params){
-        try {
+        try { 
             
             //Comprobamos los parámetros
             if(!isset($params['player'])  || !isset($params['gameId'])  || !isset($params['row'])  || !isset($params['column']) || $params['player'] == "" || $params['row'] == "" || $params['column'] == "" ){
@@ -111,7 +111,7 @@ class GameService
             }   
         } catch (\Throwable $th) {
             $response = ['code' => 500, 'message' => 'No se ha podido procesar el turno', 'data' => []];
-        }   
+        }    
         
         return $response;  
     }
@@ -308,6 +308,105 @@ class GameService
         return "";        
     }
 
+    /**
+     * Función para elegir la posición en la que va a jugar la máquina en este turno
+     *
+     * @param [type] $params (player, gameId)
+     * @return array [code => '', message => '', data => []]
+     */
+    public function automaticTurn($params){
+        try {            
+            //Comprobamos los parámetros
+            if(!isset($params['player'])  || !isset($params['gameId']) ){
 
+                $response = ['code' => 500, 'message' => 'No se han recibido los parámetros necesarios', 'data' => []];
+
+            }else{
+                //Buscamos o creamos el jugador
+                if($params['player']){
+                    $player = $this->em->getRepository(Player::class)->findOneByName($params['player']);
+                    if(!$player){
+                        $player = new Player();
+                        $player->setName($params['player']);
+                        $this->em->persist($player); 
+                    }
+                }
+
+                //Buscamos la partida
+                if($params['gameId']){
+                    $game = $this->em->getRepository(Game::class)->findOneById($params['gameId']);
+                    
+                    //En caso de no tener el valor el campo que indica si se trata de una partida contra la máquina a 1, lo seteamos
+                    if($game->getIsIA() != 1){
+                        $game->setIsIA(1);
+                        $this->em->persist($game);
+                        $this->em->flush();
+                    }
+                }
+
+                if(!isset($game) || !$game){
+                    $game = new Game();
+                    $this->em->persist($game);                
+                }
+                                
+                //Elegimos la posición
+                $pos = $this->pickPosition($player, $game);
+
+                $response = ['code' => 200, 'message' => 'Guardado con éxito', 'data' => ['pos' => $pos, 'game' => $game->getId()]];
+            }   
+        } catch (\Throwable $th) {
+            $response = ['code' => 500, 'message' => 'No se ha podido procesar el turno', 'data' => []];
+        }   
+        
+        return $response; 
+    }
+
+    /**
+     * Función para evaluar la situación del tablero y elegir la posición en la que jugará la máquina
+     *
+     * @param [type] $player
+     * @param [type] $game
+     * @return array $pos coordenadas de la casilla
+     */
+    public function pickPosition($myPlayer, $game){
+
+        $pos = [];
+
+        //Primero establecemos si vamos a llevar a cabo una jugada defensiva u ofensiva
+        $strategies = ['attack', 'defense'];
+        $strategy = $strategies[rand(0,1)];
+
+        //Según la estrategia, determinamos en las fichas de qué jugador vamos a centrarnos
+        if($strategy == 'defense'){
+            $target = $myPlayer->getName();
+        }else{
+            $target = $this->em->getRepository(Game::class)->findOtherPlayerName($game->getId(), $myPlayer->getName());
+            if(!$target){
+                $target = $myPlayer->getName();
+            }
+        }
+
+        //Recuperamos el tablero
+        $board = $this->getBoard($game);
+
+        //Obtenemos las casillas vacías, en las que podemos poner ficha 
+        $emptyPositions = [];
+        for ($i = 1; $i <= 3; $i++) {
+            for ($j = 1; $j <= 3; $j++) {                
+                if($board[$i][$j] == null){
+                    $emptyPositions[] = $i.','.$j;
+                }              
+            }            
+        }
+
+        if(count($game->getTurns()) < 9){
+            //La colocamos aleatoriamente en un hueco vacío
+            $pos_index = array_rand($emptyPositions, 1);
+            $pos_str = $emptyPositions[$pos_index];
+            $pos = explode(',',$pos_str);
+        }       
+
+        return $pos;        
+    }
 
 }

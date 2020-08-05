@@ -20,7 +20,9 @@
      {% include 'game/players_header.html.twig' %}
      {% include 'game/board.html.twig' %}
 
-     <button class='btn btn-light' onclick='location.reload()' type='button'> ¡Nueva partida! </button>
+     <button class='btn btn-light' onclick='location.reload()' type='button'> 
+          ¡Nueva partida!
+     </button>
      <input id='game_id' type='hidden' name='game_id' value={% if game and game != null %} {{game.id}} {% else %} "" {% endif %}>
      <input id='is_finished' type='hidden' name='game_id' value={% if game and game != null %} {{game.isFinished}} {% else %} "" {% endif %}>
 
@@ -28,6 +30,7 @@
 
 {% block javascripts %}
      <script>
+     
           {# Si se ha cargado una partida anterior, recuperamos el estado de la partida #}
           {% if game and game != null %}
                {% for turn in game.turns %}
@@ -35,31 +38,73 @@
                {% endfor %}          
           {% endif %} 
           
-          underlineTurn();
+          {#  Señalamos el turno del primer jugador #}
+          last_player_num = underlineTurn();
+          {# Si estamos jugando contra la máquina, comenzamos el turno#}  
+          if($("#is_ia").val() == 1){
+               if(last_player_num == 1) {
+                    playAutomaticTurn();
+               }
+          }
 
-          {# Función para subrayar el nombre del usuario que tiene el turno #}
+          {# 
+             Función que se ejecuta al hacer click en una casilla para colocar una ficha
+          #}
+          function playTurn(pos){
+              let current_player_num = underlineTurn();
+
+               {# Comprobamos si el jugador puede hacer click o es el turno de la máquina, en caso de jugar contra ella #}
+               if(current_player_num == 2 || $("#is_ia").val() != 1){                       
+
+                    {# Colocamos la ficha del jugador, y comprobamos si termina el juego #}
+                    processTurn(pos);
+                    if($("#is_finished").val() != 1 && $("#game_id").val() != ""){
+
+                         {# Si el juego continúa, señalamos el usuario que tiene el próximo turno  #}                                
+                         last_player_num = underlineTurn();
+
+                         {# Llevamos a cabo el turno automático -si procede- en caso de jugar contra la máquina #}
+                         if($("#is_ia").val() == 1){
+                              if(last_player_num == 2) {
+                                   playAutomaticTurn();
+                              }
+                         }
+                    }                                       
+               }
+          }    
+
+          {# Función para subrayar el nombre del usuario que tiene el turno. 
+             Devuelve el número correspondiente al usuario con el turno actual.
+           #}
           function underlineTurn(){
+
                {# Calculamos de quién es el turno. Si el número de movimientos es par le toca al jugador 1 y viceversa #}
                let turns = eval($(".x").length + $(".o").length);
-
+               let current_player_num = 2;
+               
                if(turns % 2 == 0){
+                    current_player_num = 1;
                     $("#span_player_one").addClass('turn');
                     $("#span_player_two").removeClass('turn');
                }else{
                     $("#span_player_one").removeClass('turn');
                     $("#span_player_two").addClass('turn');
                }
-               
-          } 
 
-          {# Función para procesar un turno (añadir imagen a la casilla y comprobar si finaliza la partida) #}
+               return current_player_num;               
+          }           
+
+          {# 
+               Función para procesar un turno (añadir imagen a la casilla y comprobar si finaliza la partida).
+               Recibe como parámetro un array con las coordenadas de la casilla en la que se desea jugar.
+           #}
           function processTurn(pos){
                
                if(Array.isArray(pos) && pos.length == 2 ){
                     let current_td = $("td[data-pos='"+pos[0]+pos[1]+"'");                    
                     current_td.unbind('click');  
 
-                    //Comprobamos que la posición no esté ya seleccionada y que la partida siga en curso
+                    {#  Comprobamos que la posición no esté ya seleccionada y que la partida siga en curso #}
                     if(!current_td.hasClass('x') && !current_td.hasClass('o') && $("#is_finished").val() != 1){
                          
                         {#  Obtenemos las variables que necesitamos en el ajax #}
@@ -72,8 +117,9 @@
                          }
 
                          $.ajax({
-                              url: '{{ path('process_turn') }}',
-                              data: {'player': player, 
+                              url: "{{ path('process_turn') }}",
+                              data: {
+                                   'player': player, 
                                    'gameId': gameId,
                                    'row': pos[0],
                                    'column': pos[1]
@@ -83,48 +129,88 @@
                                    if(data['code'] != 200){
                                         send_generic_error(data['data']['message']);
                                    }else{
-                                        //Añadimos la imagen a la casilla
+                                        {# Añadimos la imagen a la casilla #}
                                         current_td.addClass(current_symbol);
                                         
-                                        //Atualizamos el valor del game_id
+                                        {# Actualizamos el valor del game_id #}
                                         if(data['data']['game']){
                                              $("#game_id").val(data['data']['game']);
                                         }
 
-                                        //Si el juego ha terminado, lanzamos un mensaje
+                                        {# Si el juego ha terminado, lanzamos un mensaje #}
                                         if(data['data']['isFinished'] && data['data']['isFinished'] == 1){
                                              $("#is_finished").val(1);
-                                             if(data['data']['winner'] && data['data']['winner'] != ""){
-                                                  Swal.fire(
-                                                       '¡El jugador '+data['data']['winner']+' ha ganado!',
-                                                       '¡Enhorabuena!',
-                                                       'success'
-                                                  )                                                  
-                                             }else{
-                                                  Swal.fire(
-                                                       '¡Ha habido un empate!',
-                                                       'La partida ha finalizado',
-                                                       'success' 
-                                                  )
-                                             }
-                                            
-                                        }else{  
-                                             //Si el juego continúa, señalamos el usuario que tiene el próximo turno                                    
-                                             underlineTurn(); 
-                                        }                                  
+                                             sendEndGameAlert(data['data']['winner']);  
+                                        }else{
+                                             underlineTurn();
+                                        }                           
                                    }                                                      
                               },
                               error: function(error){
-                                   send_generic_error();
+                                   send_generic_error();                                   
                               }
                          });
                     } 
                }else{
                     send_generic_error();
-               }                
-               
+               }   
           } 
 
+          {# 
+               Función para llevar a cabo el turno de la máquina, en caso de estar jugando contra ella 
+          #}
+          function playAutomaticTurn(){
+               let player = $('.turn').text().trim().replace(' ', '_');
+               let gameId = $("#game_id").val();
+
+                $.ajax({
+                    url: '{{ path('automatic_turn') }}',
+                    data: {'player': player, 
+                           'gameId': gameId,                        
+                          },
+                    type: 'POST',
+                    success:function (data){
+                         if(data['code'] != 200){
+                              send_generic_error(data['data']['message']);
+                         }else{
+                              {# Atualizamos el valor del game_id #}
+                              if(data['data']['game']){
+                                   $("#game_id").val(data['data']['game']);
+                              }
+
+                              let pos = data['data']['pos'];
+                              {# Si la posición es un array y aún no llevamos 9 turnos, procesamos el turno de la máquina #}
+                              if(pos && Array.isArray(pos) && eval($(".x").length + $(".o").length) < 9){                                   
+                                   processTurn(pos);
+                              }else{
+                                   send_generic_error();
+                              }                                     
+                         }                           
+                    },
+                    error: function(error){
+                         send_generic_error();
+                    }
+               });             
+          }
+
+          {#
+               Función para mostrar el mensaje de fin del juego
+          #}
+          function sendEndGameAlert($winner){
+               if($winner && $winner != ""){
+                    Swal.fire(
+                         '¡El jugador '+$winner+' ha ganado!',
+                         '¡Enhorabuena!',
+                         'success'
+                    );                                            
+               }else{
+                    Swal.fire(
+                         '¡Ha habido un empate!',
+                         'La partida ha finalizado',
+                         'success' 
+                    );
+               }
+          }
 
      </script>
 {% endblock %}

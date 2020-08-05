@@ -46,9 +46,13 @@ body {
     width: 100%;
 }
 
-#send_players{
+#send_players, #send_robot{
     margin-top: 10px;
     margin-bottom: 20px;
+}
+
+#send_robot{
+    margin-left: 5px;
 }
 
 .error{

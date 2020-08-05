@@ -39,6 +39,11 @@ class Game
      */
     private $isFinished = 0;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isIA = 0;
+
     public function __construct()
     {
         $this->turns = new ArrayCollection();
@@ -113,6 +118,18 @@ class Game
                 $turn->setGame(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIsIA(): ?bool
+    {
+        return $this->isIA;
+    }
+
+    public function setIsIA(bool $isIA): self
+    {
+        $this->isIA = $isIA;
 
         return $this;
     }

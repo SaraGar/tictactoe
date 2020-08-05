@@ -18,14 +18,26 @@
 
     <script>
         
-        $("#send_players").on('click', ()=>{  
-            if(are_inputs_filled()){                
+        {# Función para iniciar el juego #}
+        function initGame(is_ia){            
+            if(are_inputs_filled()){  
+                save_is_ia(is_ia);
                 retrieve_or_start_game();
             }    
-        });  
+        }; 
+
+        {# Función para almacenar si la partida actual se juega contra la máquina #}
+        function save_is_ia(is_ia){
+            //Eliminamos los inputs anteriores que pudiera haber 
+            $("#is_ia").map((element)=> {
+                $(element).remove();
+            })
+            //Añadimos un input para guardar el valor
+            $('body').append('<input type="hidden" id="is_ia" value="'+is_ia+'">'); 
+        }
 
         {##
-         Función para validar que los inputs para el nombre de los jugadores estén rellenos, de lo contrario los colorea de rojo. 
+            Función para validar que los inputs para el nombre de los jugadores estén rellenos, de lo contrario los colorea de rojo. 
         ##}
         function are_inputs_filled(){
             
@@ -90,7 +102,7 @@
                                 }else{
                                     load_game();
                                 }
-                            })
+                            });
                         }else{
                             load_game();
                         }                                            
@@ -107,10 +119,11 @@
         function load_game(last_game_id = ""){
          
             $.ajax({
-                url: '{{ path('play_game') }}',
-                data: {'playerOne': $('#player1').val().trim().replace(' ', '_'), 
+                url: "{{ path('play_game') }}",
+                data: {
+                       'playerOne': $('#player1').val().trim().replace(' ', '_'), 
                        'playerTwo': $("#player2").val().trim().replace(' ', '_'), 
-                       'gameId': last_game_id
+                       'gameId': last_game_id,
                        },
                 type: 'POST',
                 success:function (data){

@@ -47,7 +47,7 @@ class GameController extends AbstractController
         return $this->render('game/game.html.twig', [
             'playerOne' => $playerOne,
             'playerTwo' => $playerTwo,
-            'game' => $game
+            'game' => $game,
         ]);
     }
 
@@ -68,6 +68,22 @@ class GameController extends AbstractController
             $response = $gameService->checkFinished($response['data'] );
         }       
         $response['data']['game'] = $gameId;
+        return new JsonResponse($response);
+    }
+
+    /**
+     * @Route("/automatic_turn", name="automatic_turn")
+     * 
+     * Función para jugar el turno de la máquina
+     *
+     */
+    public function automaticTurn(HttpFoundationRequest $request, GameService $gameService)
+    {   $response = ['code' => 500, 'message' => 'Ha ocurrido un error', 'data' => []];
+
+        $params = $request->request->all();
+        
+        $response = $gameService->automaticTurn($params);
+       
         return new JsonResponse($response);
     }
 
