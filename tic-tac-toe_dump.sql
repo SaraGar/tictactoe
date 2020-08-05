@@ -17,6 +17,7 @@ CREATE TABLE `game`(
 	`winner_id` Int( 0 ) NULL,
 	`datetime` DateTime NULL,
 	`is_finished` TinyInt( 1 ) NOT NULL,
+	`is_ia` TinyInt( 1 ) NULL,
 	PRIMARY KEY ( `id` ) )
 CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci
