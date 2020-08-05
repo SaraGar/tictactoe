@@ -34,13 +34,6 @@ class Player
      */
     private $gamesWon;
 
-    /**
-     * @ORM\Column(type="string", length=1, nullable=true)
-     * 
-     * Since we can only retrieve the last game, we don't need to save the symbol history for each turn, only the last one
-     */
-    private $currentSymbol;
-
     public function __construct()
     {
         $this->turns = new ArrayCollection();
@@ -158,15 +151,4 @@ class Player
         return $this;
     }
 
-    public function getCurrentSymbol(): ?string
-    {
-        return $this->currentSymbol;
-    }
-
-    public function setCurrentSymbol(?string $currentSymbol): self
-    {
-        $this->currentSymbol = $currentSymbol;
-
-        return $this;
-    }
 }

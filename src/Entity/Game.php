@@ -37,11 +37,12 @@ class Game
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isFinished;
+    private $isFinished = 0;
 
     public function __construct()
     {
         $this->turns = new ArrayCollection();
+        $this->datetime = new \DateTime();
     }
 
     public function getId(): ?int

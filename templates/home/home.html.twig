@@ -28,9 +28,20 @@
          Función para validar que los inputs para el nombre de los jugadores estén rellenos, de lo contrario los colorea de rojo. 
         ##}
         function are_inputs_filled(){
+            
             if($("#player1").val() != "" && $("#player2").val() != "") {
-                $(".error").removeClass('error');
-                return true;
+                if($("#player1").val() == $("#player2").val()){
+                     Swal.fire(
+                        'Los nombres deben ser diferentes',
+                        '',
+                        'error'
+                    )
+                    return false;
+                }else{
+                    $(".error").removeClass('error');
+                    return true;
+                }
+                
             }else{
                 $("input").map( (index, element) => {
                     if ($(element).val() == ""){

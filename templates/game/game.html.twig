@@ -20,6 +20,10 @@
      {% include 'game/players_header.html.twig' %}
      {% include 'game/board.html.twig' %}
 
+     <button class='btn btn-light' onclick='location.reload()' type='button'> ¡Nueva partida! </button>
+     <input id='game_id' type='hidden' name='game_id' value={% if game and game != null %} {{game.id}} {% else %} "" {% endif %}>
+     <input id='is_finished' type='hidden' name='game_id' value={% if game and game != null %} {{game.isFinished}} {% else %} "" {% endif %}>
+
 {% endblock %}
 
 {% block javascripts %}
@@ -27,27 +31,100 @@
           {# Si se ha cargado una partida anterior, recuperamos el estado de la partida #}
           {% if game and game != null %}
                {% for turn in game.turns %}
-                    $("td[data-pos='{{turn.rowPosition}}{{turn.columnPosition}}']").addClass({%if turn.player.name == playerOne %} 'x' {% else %} 'o' {% endif %});
-                    underlineTurn();
-               {% endfor %}
+                    $("td[data-pos='{{turn.rowPosition}}{{turn.columnPosition}}']").addClass({%if turn.player.name == playerOne %} 'x' {% else %} 'o' {% endif %});              
+               {% endfor %}          
           {% endif %} 
+          
+          underlineTurn();
 
-          function processTurn(){
-               
-               underlineTurn();
-                   
-          }
-
+          {# Función para subrayar el nombre del usuario que tiene el turno #}
           function underlineTurn(){
                {# Calculamos de quién es el turno. Si el número de movimientos es par le toca al jugador 1 y viceversa #}
-               {% if game and game != null and game.turns|length % 2 == 0 %}
+               let turns = eval($(".x").length + $(".o").length);
+
+               if(turns % 2 == 0){
                     $("#span_player_one").addClass('turn');
                     $("#span_player_two").removeClass('turn');
-               {% else %}
+               }else{
                     $("#span_player_one").removeClass('turn');
                     $("#span_player_two").addClass('turn');
-               {% endif %}
-          }  
+               }
+               
+          } 
+
+          {# Función para procesar un turno (añadir imagen a la casilla y comprobar si finaliza la partida) #}
+          function processTurn(pos){
+               
+               if(Array.isArray(pos) && pos.length == 2 ){
+                    let current_td = $("td[data-pos='"+pos[0]+pos[1]+"'");                    
+                    current_td.unbind('click');  
+
+                    //Comprobamos que la posición no esté ya seleccionada y que la partida siga en curso
+                    if(!current_td.hasClass('x') && !current_td.hasClass('o') && $("#is_finished").val() != 1){
+                         
+                        {#  Obtenemos las variables que necesitamos en el ajax #}
+                         let player = $('.turn').text().trim().replace(' ', '_');
+                         let gameId = $("#game_id").val();
+                                   
+                         current_symbol = 'o';
+                         if($("#span_player_one").hasClass('turn')){
+                              current_symbol = 'x';
+                         }
+
+                         $.ajax({
+                              url: '{{ path('process_turn') }}',
+                              data: {'player': player, 
+                                   'gameId': gameId,
+                                   'row': pos[0],
+                                   'column': pos[1]
+                                   },
+                              type: 'POST',
+                              success:function (data){
+                                   if(data['code'] != 200){
+                                        send_generic_error(data['data']['message']);
+                                   }else{
+                                        //Añadimos la imagen a la casilla
+                                        current_td.addClass(current_symbol);
+                                        
+                                        //Atualizamos el valor del game_id
+                                        if(data['data']['game']){
+                                             $("#game_id").val(data['data']['game']);
+                                        }
+
+                                        //Si el juego ha terminado, lanzamos un mensaje
+                                        if(data['data']['isFinished'] && data['data']['isFinished'] == 1){
+                                             $("#is_finished").val(1);
+                                             if(data['data']['winner'] && data['data']['winner'] != ""){
+                                                  Swal.fire(
+                                                       '¡El jugador '+data['data']['winner']+' ha ganado!',
+                                                       '¡Enhorabuena!',
+                                                       'success'
+                                                  )                                                  
+                                             }else{
+                                                  Swal.fire(
+                                                       '¡Ha habido un empate!',
+                                                       'La partida ha finalizado',
+                                                       'success' 
+                                                  )
+                                             }
+                                            
+                                        }else{  
+                                             //Si el juego continúa, señalamos el usuario que tiene el próximo turno                                    
+                                             underlineTurn(); 
+                                        }                                  
+                                   }                                                      
+                              },
+                              error: function(error){
+                                   send_generic_error();
+                              }
+                         });
+                    } 
+               }else{
+                    send_generic_error();
+               }                
+               
+          } 
+
 
      </script>
 {% endblock %}

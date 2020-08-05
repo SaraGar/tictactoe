@@ -42,6 +42,10 @@ class Turn
      */
     private $rowPosition;
     
+    public function __construct()
+    {
+        $this->datetime = new \DateTime();
+    }
 
     public function getId(): ?int
     {

@@ -51,4 +51,24 @@ class GameController extends AbstractController
         ]);
     }
 
+    /**
+     * @Route("/turn", name="process_turn")
+     * 
+     * Función para procesar un turno (guardado y comprobación de fin de juego)
+     *
+     */
+    public function processTurn(HttpFoundationRequest $request, GameService $gameService)
+    {   $response = ['code' => 500, 'message' => 'Ha ocurrido un error', 'data' => []];
+
+        $params = $request->request->all();
+        
+        $response = $gameService->saveTurn($params);
+        $gameId = $response['data'];
+        if($response['data'] != []){
+            $response = $gameService->checkFinished($response['data'] );
+        }       
+        $response['data']['game'] = $gameId;
+        return new JsonResponse($response);
+    }
+
 }

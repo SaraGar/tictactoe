@@ -20,3 +20,9 @@ table{
 .turn{
     text-decoration: underline white;
 }
+
+.content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
