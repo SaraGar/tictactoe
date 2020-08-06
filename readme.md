@@ -8,13 +8,13 @@ Versión web del juego tres en raya.
 La primera pantalla del juego ofrece la posibilidad de introducir dos usuarios. Ambos valores son obligatorios y deben ser diferentes. 
 Una vez indicados los nombres de usuario, se intenta recuperar la última partida, en caso de que estuviera pendiente de finalizar. De no haberla o no tener interés en recuperarla, se iniciará una nueva.
 
-![Home preview](https://lh6.googleusercontent.com/KqJHoaZr0084xlqdkrXJQ1-1wrGzvuHCRQAeHFkh9GbX-ZymmSXKlpmQLjfWqAOprMNCiiXMLJyNZb76ncGx=w1296-h630)
+![Home preview](https://iili.io/d17oxe.png)
 
 Los jugadores pueden ser dos personas que jueguen en el mismo ordenador, o una sola persona que juegue contra un oponente automático.
 
 Los usuarios van colocando una casilla por turno, hasta que alguno de los dos consigue colocar tres fichas que formen una línea vertical, horizontal o diagonal.
 
-![Game preview](https://lh4.googleusercontent.com/sC3kbq78ef9s22O6z5-4DcEI4hX2fGKFvyGJWVY6WWxprms5kpNwydpKeyLDttpFXINjz8ZNkNhKpd_AtEoH=w1296-h630)
+![Game preview](https://iili.io/d17xWu.png)
 
 ## Build
 
