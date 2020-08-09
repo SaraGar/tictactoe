@@ -36,7 +36,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 COPY . /var/www
 
 RUN composer install
-RUN php bin/console doctrine:schema:update --force
 
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
