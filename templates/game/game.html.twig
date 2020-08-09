@@ -112,7 +112,7 @@
                          let gameId = $("#game_id").val();
                                    
                          current_symbol = 'o';
-                         if($("#span_player_one").hasClass('turn')){
+                         if(eval($(".x").length + $(".o").length) %2 == 0){
                               current_symbol = 'x';
                          }
 
